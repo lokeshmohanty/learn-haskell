@@ -1,4 +1,4 @@
--- file: gameOfLife.hs
+-- file: game1.hs
 
 main :: IO ()
 main = loopDisplay (replicate 9 '-') []
