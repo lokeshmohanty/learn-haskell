@@ -1,0 +1,178 @@
+#+title: Ninety-Nine Haskell Problems
+#+property: header-args:haskell :tangle 99-questions.hs
+
+Questions: [[http://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems]]
+
+* Problems 1 - 10
+** Problem 1
+Find the last element of a list.
+
+#+begin_src haskell
+  -- Problem 1
+  -- Code
+  myLast :: [a] -> a
+  myLast [] = error "Empty List"
+  myLast [x] = x
+  myLast (x:xs) = myLast xs
+  -- built-in: myLast = head . reverse
+
+  -- Test
+  prob1Test = and [myLast [1, 2, 3, 4] == 4, myLast ['x', 'y', 'z'] == 'z']
+#+end_src
+
+** Problem 2
+Find the last-but-one (or second-last) element of a list.
+
+#+begin_src haskell
+  -- Problem 2
+  -- Code
+  myButLast :: [a] -> a
+  myButLast [] = error "Empty List"
+  myButLast [x] = error "Singleton List"
+  myButLast [x, y] = x
+  myButLast (x:xs) = myButLast xs
+  -- built-in: myButLast = head . tail . reverse
+
+  -- Test
+  prob2Test = and [myButLast [1, 2, 3, 4] == 3, myButLast ['a' .. 'z'] == 'y']
+#+end_src
+
+** Problem 3
+Find the K'th element of a list.
+
+#+begin_src haskell
+  -- Problem 3
+  -- Code
+  elementAt :: [a] -> Int -> a
+  elementAt xs y
+              | y < 1 || y > length xs = error "Index out of bounds"
+  elementAt (x:xs) 1 = x
+  elementAt (x:xs) k = elementAt xs (k - 1)
+  -- built-in: elementAt = (!!)
+
+  -- Test
+  prob3Test = and [elementAt [1, 2, 3, 4] 2 == 2, elementAt "haskell" 5 == 'e']
+#+end_src
+
+** Problem 4
+Find the number of elements in a list.
+
+#+begin_src haskell
+  -- Problem 4
+  -- Code
+  myLength :: [a] -> Int
+  myLength [] = 0
+  myLength (x:xs) = 1 + myLength xs
+  -- built-in: myLength = length
+
+  -- Test
+  prob4Test = and [myLength [1, 2, 3, 4] == 4, myLength "haskell" == 7]
+#+end_src
+
+** Problem 5
+Reverse a list.
+
+#+begin_src haskell
+  -- Problem 5
+  -- Code
+  myReverse :: [a] -> [a]
+  myReverse [] = []
+  myReverse (x:[]) = [x]
+  myReverse (x:xs) = myReverse xs ++ [x]
+  -- built-in: myReverse = reverse
+
+  -- Test
+  prob5Test = and [myReverse [1, 2, 3, 4] == [4, 3, 2, 1], myReverse "haskell" == "lleksah"]
+#+end_src
+
+** Problem 6
+Find out whether a list is a palindrome.
+
+#+begin_src haskell
+  -- Problem 6
+  -- Code
+  myPalindrome :: Eq a => [a] -> Bool
+  myPalindrome xs = xs == myReverse xs
+  -- built-in: myReverse = (`map` [id, reverse]) . flip ($)
+
+  -- Test
+  prob6Test = and [myPalindrome [1, 2, 3, 4] == False, myPalindrome "madam" == True]
+#+end_src
+
+** Problem 7
+Flatten a nested list.
+
+#+begin_src haskell
+  -- Problem 7
+  -- Code
+  data NestedList a = Elem a | List [NestedList a]
+
+  myFlatten :: NestedList a -> [a]
+  myFlatten (Elem a) = [a]
+  myFlatten (List as) = concat $ map myFlatten as
+  -- built-in: use concatMap instead of concat $ map
+
+  -- Test
+  prob7Test = and [myFlatten (List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]) == [1,2,3,4,5], null (myFlatten (List []))]
+#+end_src
+
+** Problem 8
+Eliminate consecutive duplicates of list elements.
+If a list contains repeated elements they should be replaced with a single copy of the element. The order of the elements should not be changed. 
+
+#+begin_src haskell
+  -- Problem 8
+  -- Code
+  myCompress :: Eq a => [a] -> [a]
+  myCompress [] = []
+  myCompress [x] = [x]
+  myCompress (x:y:xs) = if x == y then myCompress (x:xs) else x : myCompress (y:xs)
+  -- built-in: myCompress (x:xs) = x : myCompress $ dropWhile (==x) xs
+
+  -- Test
+  prob8Test = myCompress "aaaabccaadeeee" == "abcade"
+#+end_src
+
+** Problem 9
+Pack consecutive duplicates of lists into sublists.
+If a list contains repeated elements they should be placed in separate sublists. 
+
+#+begin_src haskell
+  -- Problem 9
+  -- Code
+  myPack :: Eq a => [a] -> [[a]]
+  myPack [] = []
+  myPack (x:xs) = takeWhile (==x) (x:xs) : myPack (dropWhile (==x) xs)
+  -- built-in: 
+
+  -- Test
+  prob9Test = myPack ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 
+               'a', 'd', 'e', 'e', 'e', 'e'] == ["aaaa","b","cc","aa","d","eeee"]
+#+end_src
+
+** Problem 10
+Run-length encoding of a list.
+Consecutive duplicates of elements are encoded as lists (N E) where N is the number of duplicates of the element E. 
+
+#+begin_src haskell
+  -- Problem 10 
+  -- Code
+  myEncode :: Eq a => [a] -> [(Int, a)]
+  myEncode [] = []
+  myEncode (x:xs) = (length $ takeWhile (==x) (x:xs), x) : myEncode (dropWhile (==x) xs)
+  -- built-in: 
+
+  -- Test
+  prob10Test = myEncode "aaaabccaadeeee" == [(4,'a'), (1,'b'), (2,'c'), (2,'a'), (1,'d'), (4,'e')]
+#+end_src
+
+* Display Results
+
+#+begin_src haskell
+  test1To10 = [ prob1Test, prob2Test, prob3Test
+              , prob4Test, prob6Test, prob6Test
+              , prob7Test, prob8Test, prob9Test
+              , prob10Test]
+
+  main = putStr $ unlines $ map show $ zip [1..] test1To10
+#+end_src
